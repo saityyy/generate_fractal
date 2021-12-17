@@ -6,7 +6,6 @@ Created on Sat Dec 09 23:56:16 2017
 
 import os
 import shutil
-import time
 import cv2
 import numpy as np
 from ifs_simple import ifs_function
@@ -15,7 +14,7 @@ from functions import *
 
 iteration_num = 500  # 画像生成の試行回数(各バリエーションごとの回数)
 numof_point = 100000  # IFSのイテレーション数
-save_dir = "./test"
+save_dir = "."
 image_size = 512
 remake_dataset_flag = True  # True時、既存のデータセットが削除される
 
@@ -36,6 +35,7 @@ def generator(params, func_V):
     return img  # return by cv2
 
 
+# 使用する関数とpixels_rateの閾値を指定する
 func_collection = [[linear, 0.2],
                    [sinusoidal, 0.2],
                    [spherical, 0.04],
@@ -46,7 +46,6 @@ func_collection = [[linear, 0.2],
                    [disc, 0.1],
                    [spiral, 0.1],
                    [hyperbolic, 0.1]]
-func_collection = [[hyperbolic, 0.04], [spiral, 0.05]]
 
 
 if __name__ == "__main__":
