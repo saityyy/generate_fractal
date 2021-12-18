@@ -59,7 +59,7 @@ if __name__ == "__main__":
         exit()
     for i, x in enumerate(func_collection):
         func, threshold = tuple(x)
-        threshold = 0
+        #threshold = 0
         class_num = 0
         img_dir = os.path.join(img_root_dir, func.__name__)
         cat_dir = os.path.join(cat_root_dir, func.__name__)
