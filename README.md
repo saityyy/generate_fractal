@@ -6,8 +6,8 @@
 - 画像サイズ、保存先パス、生成する画像枚数などのパラメータはmain.pyで変更可能
 
 # 動作環境
-windows10  
-python 3.8.9
+- windows10  
+- python 3.8.9
 
 # 実行
 - requirements.txtに記載されたライブラリのインストール
