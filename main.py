@@ -14,7 +14,7 @@ from functions import *
 category_num = 10  # 生成する画像の枚数(各バリエーションごとの回数)
 numof_point = 100000  # IFSのイテレーション数
 save_dir = "./data"
-image_size = 512
+image_size = 256
 
 
 def cal_pix(gray):
@@ -59,7 +59,7 @@ if __name__ == "__main__":
         exit()
     for i, x in enumerate(func_collection):
         func, threshold = tuple(x)
-        #threshold = 0
+        threshold = 0
         class_num = 0
         img_dir = os.path.join(img_root_dir, func.__name__)
         cat_dir = os.path.join(cat_root_dir, func.__name__)
