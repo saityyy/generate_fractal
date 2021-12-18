@@ -44,8 +44,8 @@ func_collection = [[linear, 0.2],
                    [hand_kerchief, 0.1],
                    [heart, 0.1],
                    [disc, 0.1],
-                   [spiral, 0.1],
-                   [hyperbolic, 0.1]]
+                   [spiral, 0.05],
+                   [hyperbolic, 0.05]]
 
 
 if __name__ == "__main__":
