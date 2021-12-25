@@ -7,6 +7,7 @@ Created on Sat Dec 09 23:56:16 2017
 import os
 import cv2
 import numpy as np
+from scipy.ndimage import gaussian_filter
 from ifs_simple import ifs_function
 from functions import *
 
@@ -14,7 +15,7 @@ from functions import *
 category_num = 10  # 生成する画像の枚数(各バリエーションごとの回数)
 numof_point = 100000  # IFSのイテレーション数
 save_dir = "./data"
-image_size = 256
+image_size = 512
 
 
 def cal_pix(gray):
@@ -85,5 +86,6 @@ if __name__ == "__main__":
             if pixels >= threshold:
                 print('save: '+func.__name__+class_str)
                 cv2.imwrite(os.path.join(img_dir, class_str + '.png'), fractal_img)
+                #cv2.imwrite(os.path.join(img_dir, class_str + '_gaussian_filter1.png'), gaussian_filter(fractal_img, 1))
                 np.savetxt(os.path.join(cat_dir, class_str + '.csv'), params, delimiter=',')
                 class_num += 1
