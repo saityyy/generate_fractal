@@ -15,7 +15,7 @@ import argparse
 from functions import *
 
 parser = argparse.ArgumentParser(description='PyTorch fractal random search')
-parser.add_argument('--rate', default=0.2, type=float, help='filling rate: (fractal pixels) / (all pixels in the image)')
+parser.add_argument('--rate', default=0.05, type=float, help='filling rate: (fractal pixels) / (all pixels in the image)')
 parser.add_argument('--category', default=1000, type=int, help='# of category')
 parser.add_argument('--numof_point', default=100000, type=int, help='# of point')
 parser.add_argument('--save_dir', default='.', type=str, help='save directory')
@@ -35,20 +35,9 @@ def generator(params, f):
     for param in params:
         generators.set_param(float(param[0]), float(param[1]), float(param[2]), float(param[3]), float(param[4]), float(param[5]), float(param[6]))
     generators.calculate(args.numof_point)  # class
-    img = generators.draw_point(512, 512, 6, 6, 'gray', 0)  # image (x,y pad x,y)
+    img = generators.draw_point(224, 224, 6, 6, 'gray', 0)  # image (x,y pad x,y)
     return img  # return by cv2
 
-
-func_collection = [[linear, 0.2],
-                   [sinusoidal, 0.2],
-                   [spherical, 0.04],
-                   [swirl, 0.06],
-                   [polar, 0.1],
-                   [hand_kerchief, 0.1],
-                   [heart, 0.1],
-                   [disc, 0.1],
-                   [spiral, 0.05],
-                   [hyperbolic, 0.05]]
 
 if __name__ == "__main__":
     threshold = args.rate
@@ -56,10 +45,12 @@ if __name__ == "__main__":
     class_num = 0
 
     img_dir = os.path.join(args.save_dir, 'rate' + str(args.rate) + '_category' + str(args.category))
+    img_dir = os.path.join(args.save_dir, "image")
     if not os.path.exists(img_dir):
         os.makedirs(img_dir)
 
     cat_dir = os.path.join(args.save_dir, 'csv_rate' + str(args.rate) + '_category' + str(args.category))
+    cat_dir = os.path.join(args.save_dir, "csv")
     if not os.path.exists(cat_dir):
         os.makedirs(cat_dir)
 
@@ -78,7 +69,7 @@ if __name__ == "__main__":
             params[i, 0:7] = a, b, c, d, e, f, prob
         for i in range(param_size):
             params[i, 6] /= sum_proba
-        func, threshold = random.choice(func_collection)
+        func = random.choice(func_collection)
         fracral_img = generator(params, func)
         pixels = cal_pix(fracral_img[:, :, 0].copy())
 
@@ -87,7 +78,7 @@ if __name__ == "__main__":
             print('save: '+class_str + ' type : '+func.__name__)
 
             cv2.imwrite(os.path.join(img_dir, class_str + '.png'), fracral_img)
-            np.savetxt(os.path.join(cat_dir, class_str + '_'+func.__name__+'.csv'), params, delimiter=',')
+            np.savetxt(os.path.join(cat_dir, class_str + '_'+str(func_collection.index(func))+'.csv'), params, delimiter=',')
             class_num += 1
         else:
             pass

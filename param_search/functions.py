@@ -58,3 +58,15 @@ def hyperbolic(x, y):
     r = (x**2+y**2)**(1/2)
     theta = np.arctan(x/y)
     return np.sin(theta)/r, r*np.cos(theta)
+
+
+func_collection = [linear,
+                   sinusoidal,
+                   spherical,
+                   swirl,
+                   polar,
+                   hand_kerchief,
+                   heart,
+                   disc,
+                   spiral,
+                   hyperbolic]
