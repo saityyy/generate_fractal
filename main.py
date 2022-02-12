@@ -11,7 +11,7 @@ from ifs_simple import ifs_function
 from functions import *
 
 
-category_num = 10  # 生成する画像の枚数(各バリエーションごとの回数)
+instance_num = 10  # 生成する画像の枚数(各バリエーションごとの回数)
 numof_point = 100000  # IFSのイテレーション数
 save_dir = "./data"
 image_size = 256
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         cat_dir = os.path.join(cat_root_dir, func.__name__)
         os.makedirs(img_dir)
         os.makedirs(cat_dir)
-        while(class_num < category_num):  # class
+        while(class_num < instance_num):  # class
             a, b, c, d, e, f, prob = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
             param_size = np.random.randint(2, 8)
             params = np.zeros((param_size, 7), dtype=float)
