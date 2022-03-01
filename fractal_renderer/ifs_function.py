@@ -9,6 +9,7 @@ import math
 import random
 import numpy as np
 from PIL import Image
+from scipy.ndimage import gaussian_filter
 from functions import func_collection
 
 
@@ -114,7 +115,7 @@ class ifs_function():
             ori_image = ori_image.transpose(Image.FLIP_LEFT_RIGHT)
         return ori_image
 
-    def draw_point(self, image_x, image_y, pad_x, pad_y, set_color, count):
+    def draw_point(self, image_x, image_y, pad_x, pad_y, set_color, count, sigma=-1):
         self.__rescale(image_x, image_y, pad_x, pad_y)
         image = np.array(Image.new("RGB", (image_x, image_y)))
         for i in range(len(self.xs)):
@@ -122,6 +123,8 @@ class ifs_function():
                 image[self.ys[i], self.xs[i], :] = self.convert_color(i, 128)
             else:
                 image[self.ys[i], self.xs[i], :] = 127, 127, 127
+        if sigma >= 0:
+            image = gaussian_filter(image, sigma)
         image = Image.fromarray(image)
 
         image = image.transpose(Image.FLIP_TOP_BOTTOM)

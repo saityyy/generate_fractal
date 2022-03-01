@@ -56,8 +56,18 @@ if __name__ == "__main__":
         fractal_weight = 0
         for weight in weights:
             padded_fractal_weight = '%02d' % fractal_weight
+            if args.draw_type == 'point_gray_filter':  # ぼかしによるデータ拡張
+                for count, sigma in enumerate(np.arange(0, 1, 0.4)):
+                    generators = ifs_function(prev_x=0.0, prev_y=0.0, save_root=args.save_root,
+                                              fractal_name=name, fractal_weight_count=padded_fractal_weight)
+                    params = np.genfromtxt(os.path.join(args.load_root, csv_name), dtype=np.str, delimiter=',')
+                    for param in params:
+                        generators.set_param(float(param[0]), float(param[1]), float(param[2]), float(param[3]), float(param[4]), float(param[5]), float(param[6]),
+                                             weight_a=float(weight[0]), weight_b=float(weight[1]), weight_c=float(weight[2]), weight_d=float(weight[3]), weight_e=float(weight[4]), weight_f=float(weight[5]))
+                    generators.calculate(args.iteration)
+                    generators.draw_point(args.image_size_x, args.image_size_y, args.pad_size_x, args.pad_size_y, 'gray', count, sigma)
 
-            if args.draw_type == 'point_gray':
+            elif args.draw_type == 'point_gray':
                 generators = ifs_function(prev_x=0.0, prev_y=0.0, save_root=args.save_root,
                                           fractal_name=name, fractal_weight_count=padded_fractal_weight)
                 params = np.genfromtxt(os.path.join(args.load_root, csv_name), dtype=np.str, delimiter=',')
