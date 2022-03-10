@@ -33,6 +33,7 @@ import random
 import numpy as np
 from PIL import Image
 from scipy.ndimage import gaussian_filter
+from scipy.ndimage import uniform_filter
 from functions import func_collection
 
 
@@ -72,7 +73,8 @@ class ifs_function():
             e *= kwargs["weight_e"]
         if "weight_f" in kwargs:
             f *= kwargs["weight_f"]
-        temp_function = {"a": a, "b": b, "c": c, "d": d, "e": e, "f": f, "proba": proba}
+        temp_function = {"a": a, "b": b, "c": c,
+                         "d": d, "e": e, "f": f, "proba": proba}
         self.function.append(temp_function)
         # Plus probability when function is added
         self.temp_proba += proba
@@ -88,8 +90,12 @@ class ifs_function():
         for i in range(iteration-1):
             for j in range(len(select_function)):
                 if rand[i] <= select_function[j]:
-                    next_x = prev_x * function[j]["a"] + prev_y * function[j]["b"] + function[j]["e"]
-                    next_y = prev_x * function[j]["c"] + prev_y * function[j]["d"] + function[j]["f"]
+                    next_x = prev_x * \
+                        function[j]["a"] + prev_y * \
+                        function[j]["b"] + function[j]["e"]
+                    next_y = prev_x * \
+                        function[j]["c"] + prev_y * \
+                        function[j]["d"] + function[j]["f"]
                     next_x, next_y = self.non_linear_function(next_x, next_y)
                     break
             self.xs.append(next_x), self.ys.append(next_y)
@@ -123,8 +129,10 @@ class ifs_function():
         if np.min(ys) < 0.0:
             ys -= np.min(ys)
         xmax, xmin, ymax, ymin = np.max(xs), np.min(xs), np.max(ys), np.min(ys)
-        self.xs = np.uint16(xs / (xmax-xmin) * float(image_x-2*pad_x)+float(pad_x))
-        self.ys = np.uint16(ys / (ymax-ymin) * float(image_y-2*pad_y)+float(pad_y))
+        self.xs = np.uint16(xs / (xmax-xmin) *
+                            float(image_x-2*pad_x)+float(pad_x))
+        self.ys = np.uint16(ys / (ymax-ymin) *
+                            float(image_y-2*pad_y)+float(pad_y))
 
     def __transpose(self, ori_image, trans_type):
         if trans_type == 0:
@@ -138,7 +146,7 @@ class ifs_function():
             ori_image = ori_image.transpose(Image.FLIP_LEFT_RIGHT)
         return ori_image
 
-    def draw_point(self, image_x, image_y, pad_x, pad_y, set_color, count, sigma=-1):
+    def draw_point(self, image_x, image_y, pad_x, pad_y, set_color, count, mode=""):
         self.__rescale(image_x, image_y, pad_x, pad_y)
         image = np.array(Image.new("RGB", (image_x, image_y)))
         for i in range(len(self.xs)):
@@ -146,15 +154,24 @@ class ifs_function():
                 image[self.ys[i], self.xs[i], :] = self.convert_color(i, 128)
             else:
                 image[self.ys[i], self.xs[i], :] = 127, 127, 127
-        if sigma >= 0:
+        np.random.seed()
+        if mode == "gaussian_filter":
+            sigma = 3.0*np.random.rand()
             image = gaussian_filter(image, sigma)
+            filter_var = sigma
+        elif mode == "uniform_filter":
+            size = random.choice(np.arange(10))
+            image = uniform_filter(image, size)
+            filter_var = size
+        else:
+            filter_var = count
         image = Image.fromarray(image)
 
         image = image.transpose(Image.FLIP_TOP_BOTTOM)
         for trans_type in range(4):
             trans_image = self.__transpose(image, trans_type)
             trans_image.save(os.path.join(self.save_root, self.fractal_name, self.fractal_name + "_" +
-                             self.fractal_weight_count + "_sigma_"+str(round(sigma, 3))+"_flip" + str(trans_type) + ".png"))
+                             self.fractal_weight_count + "_param_"+str(round(filter_var, 3))+"_flip" + str(trans_type) + ".png"))
             # trans_image.close()
         image.close()
 
@@ -166,7 +183,8 @@ class ifs_function():
         for i in range(len(self.xs)):
             mask_pattern = '{:09b}'.format(random.randrange(1, 512))
             if set_color == "color":
-                patch = self.make_patch3_3(mask_pattern, [self.convert_color(i, 128)])
+                patch = self.make_patch3_3(
+                    mask_pattern, [self.convert_color(i, 128)])
             else:
                 patch = self.make_patch3_3(mask_pattern, [127, 127, 127])
             image.paste(patch, (self.xs[i]+1, self.ys[i]+1))
