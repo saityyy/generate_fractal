@@ -1,0 +1,12 @@
+version: "3.2"
+
+services:
+  python:
+    container_name: fractal-container
+    build:
+      dockerfile: ./Dockerfile
+    tty: true
+    volumes:
+      - type: bind
+        source: "./container_data"
+        target: "/root/generate_fractal/data"
