@@ -4,9 +4,10 @@ services:
   python:
     container_name: fractal-container
     build:
+      context: .
       dockerfile: ./Dockerfile
     tty: true
     volumes:
       - type: bind
-        source: "./container_data"
-        target: "/root/generate_fractal/data"
+        source: "./"
+        target: "/root/generate_fractal/"

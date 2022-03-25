@@ -1,3 +1,4 @@
+#!/bin/bash
 #default 1000
 category_num=1
 #default 10
