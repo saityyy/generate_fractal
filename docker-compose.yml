@@ -9,5 +9,5 @@ services:
     tty: true
     volumes:
       - type: bind
-        source: "./"
-        target: "/root/generate_fractal/"
+        source: "./container_data"
+        target: "/root/generate_fractal/data"
