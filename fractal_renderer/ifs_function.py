@@ -171,7 +171,7 @@ class ifs_function():
         for trans_type in range(4):
             trans_image = self.__transpose(image, trans_type)
             trans_image.save(os.path.join(self.save_root, self.fractal_name, self.fractal_name + "_" +
-                             self.fractal_weight_count + "_param_"+str(round(filter_var, 3))+"_flip" + str(trans_type) + ".png"))
+                             self.fractal_weight_count + "_param_"+str(round(filter_var, 3))+"_count_"+str(count)+"_flip" + str(trans_type) + ".png"))
             # trans_image.close()
         image.close()
 
