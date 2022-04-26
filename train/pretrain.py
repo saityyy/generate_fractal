@@ -7,6 +7,7 @@ import pickle
 from PIL import Image
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import argparse
 import torchvision.models as models
 import torch
 from torch import nn
@@ -15,8 +16,11 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--db_path', type=str)
+args = parser.parse_args()
 DB_PATH = os.path.join(os.path.dirname(
-    os.path.abspath(__file__)), "../data/FractalDB+224")
+    os.path.abspath(__file__)), "..", args.db_path)
 normalize = transforms.Normalize(mean=[0.2, 0.2, 0.2], std=[0.5, 0.5, 0.5])
 transform = transforms.Compose([
     transforms.ToTensor(),
@@ -39,7 +43,7 @@ class Model(nn.Module):
 
 
 epoch = 10
-batch_size = 256
+batch_size = 64
 model_name = "resnet18"
 device = torch.device("cuda"if torch.cuda.is_available() else "cpu")
 train_dataset = ImageFolder(DB_PATH, transform)
@@ -50,7 +54,7 @@ if model_name == "resnet50":
     model = Model(models.resnet50(pretrained=False)).to(device)
 elif model_name == "resnet18":
     model = Model(models.resnet18(pretrained=False)).to(device)
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+optimizer = optim.SGD(model.parameters(), lr=1e-3)
 criterion = nn.CrossEntropyLoss().to(device)
 acc_list = [0]
 print(device)

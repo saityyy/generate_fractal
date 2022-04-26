@@ -155,8 +155,15 @@ class ifs_function():
             else:
                 image[self.ys[i], self.xs[i], :] = 127, 127, 127
         np.random.seed()
+        if mode == "random_type":
+            mode = random.choice(["point", "gaussian_filter", "uniform_filter"])
+        if mode == "gaussian_filter+noise":
+            for i in range(300):
+                x, y = np.random.randint(0, len(image), 2)
+                image[x][y] = np.random.randint(127)
+            mode = "gaussian_filter"
         if mode == "gaussian_filter":
-            sigma = 3.0*np.random.rand()
+            sigma = 2.0*np.random.rand()
             image = gaussian_filter(image, sigma)
             filter_var = sigma
         elif mode == "uniform_filter":
