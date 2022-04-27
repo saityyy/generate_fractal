@@ -1,9 +1,9 @@
-# %%
 import os
 import shutil
 import glob
 import random
 import pickle
+from unicodedata import category
 from PIL import Image
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -28,47 +28,45 @@ transform = transforms.Compose([
 
 
 class Model(nn.Module):
-    def __init__(self, pretrained_model):
+    def __init__(self, pretrained_model, category_num):
         super(Model, self).__init__()
-        self.fc = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(1000, 1000),
-        )
         self.pretrained_model = pretrained_model
+        self.pretrained_model.fc = nn.Linear(self.pretrained_model.fc.in_features, category_num)
 
     def forward(self, x):
         x = self.pretrained_model(x)
-        x = self.fc(x)
         return x
 
 
-epoch = 10
+epoch = 30
 batch_size = 64
 model_name = "resnet18"
 device = torch.device("cuda"if torch.cuda.is_available() else "cpu")
-train_dataset = ImageFolder(DB_PATH, transform)
-train_dataloader = DataLoader(
-    train_dataset, batch_size=batch_size, shuffle=True)
-print(len(train_dataset))
-if model_name == "resnet50":
-    model = Model(models.resnet50(pretrained=False)).to(device)
-elif model_name == "resnet18":
-    model = Model(models.resnet18(pretrained=False)).to(device)
-optimizer = optim.SGD(model.parameters(), lr=1e-3)
-criterion = nn.CrossEntropyLoss().to(device)
-acc_list = [0]
-print(device)
-for _ in range(epoch):
-    for x, t in tqdm(train_dataloader):
-        x, t = x.to(device), t.to(device)
-        y = model(x)
-        loss = criterion(y, t)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        correct_sum = (torch.argmax(y, dim=1) == t).sum()
-        acc_list.append(correct_sum/batch_size)
-        print(acc_list[-1])
-    break
-plt.plot(acc_list)
-plt.show()
+for i in os.scandir("./container_data/filter"):
+    DB_PATH = i.path
+    train_dataset = ImageFolder(DB_PATH, transform)
+    train_dataloader = DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True)
+    print(len(train_dataset))
+    if model_name == "resnet18":
+        model = Model(models.resnet18(pretrained=False), len(os.listdir(DB_PATH))).to(device)
+    elif model_name == "resnet50":
+        model = Model(models.resnet50(pretrained=False), len(os.listdir(DB_PATH))).to(device)
+    optimizer = optim.SGD(model.parameters(), lr=1e-2)
+    criterion = nn.CrossEntropyLoss().to(device)
+    acc_list = [0]
+    print(device)
+    for it in range(epoch):
+        if it > 20:
+            optimizer = optim.SGD(model.parameters(), lr=1e-3)
+        for x, t in tqdm(train_dataloader):
+            x, t = x.to(device), t.to(device)
+            y = model(x)
+            loss = criterion(y, t)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            correct_sum = (torch.argmax(y, dim=1) == t).sum()
+            acc_list.append(correct_sum/batch_size)
+        print(it, acc_list[-1])
+    torch.save(model.pretrained_model.cpu().state_dict(), "./weight/{}_{}_{}.pth".format(i.name, model_name, acc_list[-1]))
