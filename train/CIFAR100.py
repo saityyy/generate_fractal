@@ -23,13 +23,13 @@ transform = transforms.Compose([
 ])
 
 
-epoch = 30
+epoch = 100
 batch_size = 64
 model_name = "resnet18"
 device = torch.device("cuda"if torch.cuda.is_available() else "cpu")
-device = "cpu"
 for i in os.scandir("./weight"):
     weight_path = i.path
+    print(weight_path)
     train_dataset = CIFAR100("./CIFAR100_data", train=True, transform=transform, download=True)
     test_dataset = CIFAR100("./CIFAR100_data", train=False, transform=transform)
     train_dataloader = DataLoader(
@@ -37,7 +37,9 @@ for i in os.scandir("./weight"):
     test_dataloader = DataLoader(
         test_dataset, batch_size=batch_size, shuffle=True)
     print(len(train_dataset))
-    model = models.resnet18(pretrained=False).to(device)
+    model = models.resnet18(pretrained=False)
+    model.fc = nn.Linear(model.fc.in_features, 100)
+    model = model.to(device)
     weight = torch.load(weight_path)
     model.load_state_dict(weight)
     optimizer = optim.SGD(model.parameters(), lr=1e-3)
@@ -58,5 +60,6 @@ for i in os.scandir("./weight"):
             y = model(x)
             correct_sum += (torch.argmax(y, dim=1) == t).sum()
         acc_list.append(correct_sum/len(test_dataset))
-
-    print(acc_list)
+        print(acc_list[-1])
+    for acc in acc_list:
+        print(acc)
