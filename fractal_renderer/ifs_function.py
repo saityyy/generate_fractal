@@ -163,11 +163,11 @@ class ifs_function():
                 image[x][y] = np.random.randint(127)
             mode = "gaussian_filter"
         if mode == "gaussian_filter":
-            sigma = 2.0*np.random.rand()
+            sigma = 1.0*np.random.rand()+0.5
             image = gaussian_filter(image, sigma)
             filter_var = sigma
         elif mode == "uniform_filter":
-            size = random.choice(np.arange(10))
+            size = random.choice([2, 3, 4, 5])
             image = uniform_filter(image, size)
             filter_var = size
         else:
