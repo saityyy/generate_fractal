@@ -31,10 +31,11 @@ class Model(nn.Module):
     def __init__(self, pretrained_model, category_num):
         super(Model, self).__init__()
         self.pretrained_model = pretrained_model
-        self.pretrained_model.fc = nn.Linear(self.pretrained_model.fc.in_features, category_num)
+        self.layer1 = nn.Linear(self.pretrained_model.fc.out_features, category_num)
 
     def forward(self, x):
         x = self.pretrained_model(x)
+        x = self.layer1(x)
         return x
 
 
@@ -52,13 +53,13 @@ for i in os.scandir("./container_data/filter"):
         model = Model(models.resnet18(pretrained=False), len(os.listdir(DB_PATH))).to(device)
     elif model_name == "resnet50":
         model = Model(models.resnet50(pretrained=False), len(os.listdir(DB_PATH))).to(device)
-    optimizer = optim.SGD(model.parameters(), lr=1e-2)
+    #weight = torch.load("weight/FractalDB+gaussian_resnet18_0.25.pth")
+    # model.pretrained_model.load_state_dict(weight)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
     criterion = nn.CrossEntropyLoss().to(device)
     acc_list = [0]
     print(device)
     for it in range(epoch):
-        if it > 20:
-            optimizer = optim.SGD(model.parameters(), lr=1e-3)
         for x, t in tqdm(train_dataloader):
             x, t = x.to(device), t.to(device)
             y = model(x)
@@ -67,6 +68,5 @@ for i in os.scandir("./container_data/filter"):
             loss.backward()
             optimizer.step()
             correct_sum = (torch.argmax(y, dim=1) == t).sum()
-            acc_list.append(correct_sum/batch_size)
-        print(it, acc_list[-1])
+            print(correct_sum)
     torch.save(model.pretrained_model.cpu().state_dict(), "./weight/{}_{}_{}.pth".format(i.name, model_name, acc_list[-1]))

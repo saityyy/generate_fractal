@@ -15,6 +15,7 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
+from torchvision.datasets import CIFAR10
 from torchvision.datasets import CIFAR100
 
 normalize = transforms.Normalize(mean=[0.2, 0.2, 0.2], std=[0.5, 0.5, 0.5])
@@ -23,9 +24,9 @@ transform = transforms.Compose([
 ])
 
 
-epoch = 100
-batch_size = 64
-model_name = "resnet18"
+epoch = 20
+batch_size = 256
+model_name = "resnet50"
 device = torch.device("cuda"if torch.cuda.is_available() else "cpu")
 for i in os.scandir("./weight"):
     weight_path = i.path
@@ -38,16 +39,16 @@ for i in os.scandir("./weight"):
         test_dataset, batch_size=batch_size, shuffle=True)
     print(len(train_dataset))
     model = models.resnet18(pretrained=False)
-    model.fc = nn.Linear(model.fc.in_features, 100)
-    model = model.to(device)
     weight = torch.load(weight_path)
     model.load_state_dict(weight)
-    optimizer = optim.SGD(model.parameters(), lr=1e-3)
+    model.fc = nn.Linear(model.fc.in_features, 100)
+    model = model.to(device)
+    optimizer = optim.Adam(model.parameters(), lr=1e-2)
     criterion = nn.CrossEntropyLoss().to(device)
     acc_list = [0]
     print(device)
     for i in range(epoch):
-        for x, t in tqdm(train_dataloader):
+        for x, t in (train_dataloader):
             x, t = x.to(device), t.to(device)
             y = model(x)
             loss = criterion(y, t)
@@ -61,5 +62,3 @@ for i in os.scandir("./weight"):
             correct_sum += (torch.argmax(y, dim=1) == t).sum()
         acc_list.append(correct_sum/len(test_dataset))
         print(acc_list[-1])
-    for acc in acc_list:
-        print(acc)
