@@ -10,8 +10,8 @@ python3 fractal_renderer/ifs_search.py --rate=0.1 --category=${category_num} --n
 mkdir ./data/filter
 python3 ./fractal_renderer/make_fractaldb.py --draw_type="gaussian_filter" --save_root="./data/filter/FractalDB+gaussian" --instance=${instance_num}
 python3 ./fractal_renderer/make_fractaldb.py --draw_type="gaussian_filter+noise" --save_root="./data/filter/FractalDB+gaussian_noise" --instance=${instance_num}
-#python3 ./fractal_renderer/make_fractaldb.py --draw_type="uniform_filter" --save_root="./data/filter/FractalDB+uniform" --instance=${instance_num}
-#python3 ./fractal_renderer/make_fractaldb.py --draw_type="random_type" --save_root="./data/filter/FractalDB+random_type" --instance=${instance_num}
+python3 ./fractal_renderer/make_fractaldb.py --draw_type="uniform_filter" --save_root="./data/filter/FractalDB+uniform" --instance=${instance_num}
+python3 ./fractal_renderer/make_fractaldb.py --draw_type="random_type" --save_root="./data/filter/FractalDB+random_type" --instance=${instance_num}
 python3 ./fractal_renderer/make_fractaldb.py --draw_type="point_gray" --save_root="./data/filter/FractalDB+normal" --instance=${instance_num}
 
 #データのサイズで比較
