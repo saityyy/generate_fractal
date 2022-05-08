@@ -11,10 +11,10 @@ from ifs_simple import ifs_function
 from functions import *
 
 
-instance_num = 10  # 生成する画像の枚数(各バリエーションごとの回数)
+instance_num = 20  # 生成する画像の枚数(各バリエーションごとの回数)
 numof_point = 100000  # IFSのイテレーション数
 save_dir = "./data"
-image_size = 256
+image_size = 224
 
 
 def cal_pix(gray):
@@ -33,19 +33,6 @@ def generator(params, func_V):
     return img  # return by cv2
 
 
-# 使用する関数とpixels_rateの閾値を指定する
-func_collection = [[linear, 0.2],
-                   [sinusoidal, 0.2],
-                   [spherical, 0.04],
-                   [swirl, 0.06],
-                   [polar, 0.1],
-                   [hand_kerchief, 0.1],
-                   [heart, 0.1],
-                   [disc, 0.1],
-                   [spiral, 0.05],
-                   [hyperbolic, 0.05]]
-
-
 if __name__ == "__main__":
     np.random.seed(1)
     img_root_dir = os.path.join(save_dir, "fractal_image")
@@ -57,9 +44,8 @@ if __name__ == "__main__":
     else:
         print("fractal data exists")
         exit()
-    for i, x in enumerate(func_collection):
-        func, threshold = tuple(x)
-        #threshold = 0
+    for i, func in enumerate(func_collection):
+        threshold = 0.1
         class_num = 0
         img_dir = os.path.join(img_root_dir, func.__name__)
         cat_dir = os.path.join(cat_root_dir, func.__name__)
