@@ -54,7 +54,7 @@ def conf():
     parser.add_argument('--draw_type', default='patch_gray', type=str,
                         help='{point, patch}_{gray, color}_{point_gray_filter}')
     parser.add_argument(
-        '--weight_csv', default='./fractal_renderer/weights/weights_0.2.csv', type=str, help='weight parameter')
+        '--weight_csv', default='./fractal_renderer/weights/weights_0.1.csv', type=str, help='weight parameter')
     parser.add_argument('--instance', default=10, type=int,
                         help='#instance, 10 => 1000 instance, 100 => 10,000 instance per category')
     parser.add_argument('-f', '--force', action="store_true")
