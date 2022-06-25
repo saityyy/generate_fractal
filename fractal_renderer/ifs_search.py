@@ -41,6 +41,7 @@ parser.add_argument('--rate', default=0.05, type=float, help='filling rate: (fra
 parser.add_argument('--category', default=1000, type=int, help='# of category')
 parser.add_argument('--numof_point', default=100000, type=int, help='# of point')
 parser.add_argument('--save_dir', default='.', type=str, help='save directory')
+parser.add_argument('--func_num', default=1, type=int)
 args = parser.parse_args()
 
 
@@ -65,6 +66,7 @@ if __name__ == "__main__":
     threshold = args.rate
     np.random.seed(1)
     class_num = 0
+    func_collection = func_collection[:args.func_num]
 
     img_dir = os.path.join(args.save_dir, 'rate' + str(args.rate) + '_category' + str(args.category))
     img_dir = os.path.join(args.save_dir, "image")
