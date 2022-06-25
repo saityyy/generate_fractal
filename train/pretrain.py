@@ -23,7 +23,7 @@ DB_PATH = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), "..", args.db_path)
 normalize = transforms.Normalize(mean=[0.2, 0.2, 0.2], std=[0.5, 0.5, 0.5])
 transform = transforms.Compose([
-    transforms.ToTensor(),
+    transforms.ToTensor(), normalize
 ])
 
 
@@ -39,8 +39,8 @@ class Model(nn.Module):
         return x
 
 
-epoch = 30
-batch_size = 64
+epoch = 90
+batch_size = 256
 model_name = "resnet18"
 device = torch.device("cuda"if torch.cuda.is_available() else "cpu")
 for i in os.scandir("./container_data/filter"):
@@ -55,8 +55,9 @@ for i in os.scandir("./container_data/filter"):
         model = Model(models.resnet50(pretrained=False), len(os.listdir(DB_PATH))).to(device)
     #weight = torch.load("weight/FractalDB+gaussian_resnet18_0.25.pth")
     # model.pretrained_model.load_state_dict(weight)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = optim.SGD(model.parameters(), lr=1e-1)
     criterion = nn.CrossEntropyLoss().to(device)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[30, 60], gamma=0.1)
     acc_list = [0]
     print(device)
     for it in range(epoch):
@@ -69,4 +70,5 @@ for i in os.scandir("./container_data/filter"):
             optimizer.step()
             correct_sum = (torch.argmax(y, dim=1) == t).sum()
             print(correct_sum)
+        scheduler.step()
     torch.save(model.pretrained_model.cpu().state_dict(), "./weight/{}_{}_{}.pth".format(i.name, model_name, acc_list[-1]))
