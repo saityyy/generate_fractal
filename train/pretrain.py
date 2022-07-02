@@ -19,8 +19,8 @@ from torchvision.datasets import ImageFolder
 parser = argparse.ArgumentParser()
 parser.add_argument('--db_path', type=str)
 args = parser.parse_args()
-DB_PATH = os.path.join(os.path.dirname(
-    os.path.abspath(__file__)), "..", args.db_path)
+# DB_PATH = os.path.join(os.path.dirname(
+# os.path.abspath(__file__)), "..", args.db_path)
 normalize = transforms.Normalize(mean=[0.2, 0.2, 0.2], std=[0.5, 0.5, 0.5])
 transform = transforms.Compose([
     transforms.ToTensor(), normalize
@@ -39,11 +39,11 @@ class Model(nn.Module):
         return x
 
 
-epoch = 90
-batch_size = 256
+epoch = 6
+batch_size = 128
 model_name = "resnet18"
-device = torch.device("cuda"if torch.cuda.is_available() else "cpu")
-for i in os.scandir("./container_data/filter"):
+device = torch.device("cuda:0"if torch.cuda.is_available() else "cpu")
+for i in os.scandir("./container_data/function/DB"):
     DB_PATH = i.path
     train_dataset = ImageFolder(DB_PATH, transform)
     train_dataloader = DataLoader(
@@ -57,11 +57,11 @@ for i in os.scandir("./container_data/filter"):
     # model.pretrained_model.load_state_dict(weight)
     optimizer = optim.SGD(model.parameters(), lr=1e-1)
     criterion = nn.CrossEntropyLoss().to(device)
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[30, 60], gamma=0.1)
-    acc_list = [0]
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[4], gamma=0.1)
+    acc = 0
     print(device)
     for it in range(epoch):
-        for x, t in tqdm(train_dataloader):
+        for x, t in train_dataloader:
             x, t = x.to(device), t.to(device)
             y = model(x)
             loss = criterion(y, t)
@@ -69,6 +69,7 @@ for i in os.scandir("./container_data/filter"):
             loss.backward()
             optimizer.step()
             correct_sum = (torch.argmax(y, dim=1) == t).sum()
-            print(correct_sum)
+            acc = correct_sum/len(t)
+            print(it, acc)
         scheduler.step()
-    torch.save(model.pretrained_model.cpu().state_dict(), "./weight/{}_{}_{}.pth".format(i.name, model_name, acc_list[-1]))
+    torch.save(model.pretrained_model.cpu().state_dict(), "./weight/function_db/{}_{}_{}.pth".format(i.name, model_name, acc))
