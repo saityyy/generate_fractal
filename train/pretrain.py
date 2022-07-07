@@ -25,9 +25,9 @@ DB_PATH = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), "..", args.db_path)
 WEIGHT_PATH = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), "..", args.weight_path)
-normalize = transforms.Normalize(mean=[0.2, 0.2, 0.2], std=[0.5, 0.5, 0.5])
+normalize = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 transform = transforms.Compose([
-    transforms.ToTensor(), normalize
+    transforms.ToTensor(),transforms.RandomCrop(200),normalize
 ])
 
 
@@ -43,7 +43,7 @@ class Model(nn.Module):
         return x
 
 
-epoch = 90
+epoch = 5
 batch_size = 128
 model_name = "resnet50"
 device = torch.device("cuda"if torch.cuda.is_available() else "cpu")
@@ -57,15 +57,13 @@ for i in os.scandir(DB_PATH):
         model = Model(models.resnet18(pretrained=False), len(os.listdir(db_path))).to(device)
     elif model_name == "resnet50":
         model = Model(models.resnet50(pretrained=False), len(os.listdir(db_path))).to(device)
-    #weight = torch.load("weight/FractalDB+gaussian_resnet18_0.25.pth")
-    # model.pretrained_model.load_state_dict(weight)
-    optimizer = optim.SGD(model.parameters(), lr=1e-1)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
     criterion = nn.CrossEntropyLoss().to(device)
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[30,60], gamma=0.1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[], gamma=0.1)
     acc=0
     print(db_path)
     for it in range(epoch):
-        for x, t in train_dataloader:
+        for j,(x, t) in enumerate(train_dataloader):
             x, t = x.to(device), t.to(device)
             y = model(x)
             loss = criterion(y, t)
@@ -73,7 +71,9 @@ for i in os.scandir(DB_PATH):
             loss.backward()
             optimizer.step()
             correct_sum = (torch.argmax(y, dim=1) == t).sum()
+            if j%500==0:
+                print("epoch: {:<3} accuracy: {:<10} loss: {:<5} time :{}".format(it,correct_sum/len(t),loss.item(),datetime.datetime.now()))
         scheduler.step()
         acc=correct_sum/batch_size
-        print("epoch: {} accuracy: {} time :{}".format(it,acc,datetime.datetime.now()))
-    torch.save(model.pretrained_model.cpu().state_dict(), os.path.join(WEIGHT_PATH,"{}_{}_{}.pth".format(i.name, model_name, acc)))
+        #print("epoch: {} accuracy: {} time :{}".format(it,acc,datetime.datetime.now()))
+    torch.save(model.pretrained_model.cpu().state_dict(), os.path.join(WEIGHT_PATH,"{}_{}_{}.pth".format(i.name, model_name, loss.item())))
